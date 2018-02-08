@@ -1,3 +1,33 @@
+%% DaganMain
+%   Quantifying molecular dynamics at non-contracting vesicles in the
+%   Drosophila Salivry gland
+%
+%   Please cite the following manuscript if using this code: 
+%       Formation and disassembly of a contractile actomyosin network mediates content release from large secretory vesicles
+%       https://doi.org/10.1101/216044 (accepted to JCB)
+%
+%   Input: 
+%       dname - main directory path
+%       baseDname - condition (e.g., rockinh - ROCK inhibition)
+%       tifStacksDnames - cell array of independent experiments / replicates (directories)
+%       params.timePerFrame - time resolution for each experiment ()
+%       dbFname - excel file name 
+%       params - additional parameters for the analysis
+%
+%       Assumptions: 
+%           Each vesicle has a code civj, cell i and vesicle j
+%           Each vesicle is represented by (1) data file, 2 data channels,
+%           the 3rd channel for defining the reference frame (which defines the bounding box for registration)
+%
+%       Processing:
+%           DaganAnalyseExperiments - analyze vesicles (registration and intensity measurements)
+%           DaganParseVesicleXls -  parse xls file (parsing and partitioning to groups)
+%           DaganMetaBackgroundAnalysis - calculate background model (time points before vesicle formation, to normalize per experiment + bleaching correction)
+%           DaganMetaNormalizeAnalysis - normalized vesicle data based on
+%               background model, find oscillations (via DaganFindOscillations)
+%           DaganMetaAnalysis - accumulate meta data per experiment (including sustained vesicles analysis)
+%
+%   Assaf Zaritsky, 2017 - for Dagan Segal's project
 function [] = DaganMain()
 
 close all;
@@ -6,11 +36,15 @@ clc;
 %% experiments
 dname = 'C:\Users\assafza\Google Drive\Research\PostDoc\Collaborations\Dagan\';
 
+baseDname = [dname 'testData\'];
+tifStacksDnames = {'1rockinh','2rockinh'};
+params.timePerFrame = [0.469,0.348];
+dbFname = 'metaData.xlsx';
 
-baseDname = [dname 'rockinh\'];
-tifStacksDnames = {'1rockinh','2rockinh','7rockinh','8rockinh'};
-params.timePerFrame = [0.469,0.348,0.339,0.348];
-dbFname = 'vesicles_timepoints_20170622.xlsx';
+% baseDname = [dname 'rockinh\'];
+% tifStacksDnames = {'1rockinh','2rockinh','7rockinh','8rockinh'};
+% params.timePerFrame = [0.469,0.348,0.339,0.348];
+% dbFname = 'vesicles_timepoints_20170622.xlsx';
 
 % baseDname = [dname 'rockinh_arpinh\'];
 % tifStacksDnames = {'3rockinh_arpinh','4rockinh_arpinh','5rockinh_arpinh'};
@@ -63,10 +97,10 @@ params.MinPeakProminence = 1.5; % 1; % drop off on both sides before encounterin
 params.MinPeakDistance = 7; % Minimum peak separation
 
 %% flags
-flag.doAnalyzeExp = false;
-flag.doParseVesicleXls = false;
-flag.doMetaBackgroundAnalysis = false;
-flag.doMetaNormalizeAnalysis = false;
+flag.doAnalyzeExp = true;
+flag.doParseVesicleXls = true;
+flag.doMetaBackgroundAnalysis = true;
+flag.doMetaNormalizeAnalysis = true;
 flag.doMetaAnalysis = true;
 
 %% Execute

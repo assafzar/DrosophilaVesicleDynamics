@@ -1,3 +1,7 @@
+%% DaganDynamicsMain
+%   Input: 
+%
+%   Assaf Zaritsky, 2017 - for Dagan Segal's project
 function [] = DaganDynamicsMain()
 
 close all;
